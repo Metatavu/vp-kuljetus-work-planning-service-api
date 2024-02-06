@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
     <changeSet id="routes" author="katja.danilova">
-        <createTable tableName="Route">
+        <createTable tableName="route">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
