@@ -1,4 +1,4 @@
-package fi.metatavu.vp.persistence
+package fi.metatavu.vp.workplanning
 
 import java.time.OffsetDateTime
 import jakarta.persistence.Column

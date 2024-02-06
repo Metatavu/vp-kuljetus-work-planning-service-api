@@ -1,11 +1,11 @@
-package fi.metatavu.vp.functional.impl
+package fi.metatavu.vp.workplanning.functional.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.test.client.apis.RoutesApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.models.Route
-import fi.metatavu.vp.functional.TestBuilder
-import fi.metatavu.vp.functional.settings.ApiTestSettings
+import fi.metatavu.vp.workplanning.functional.TestBuilder
+import fi.metatavu.vp.workplanning.functional.settings.ApiTestSettings
 import java.util.UUID
 
 /**

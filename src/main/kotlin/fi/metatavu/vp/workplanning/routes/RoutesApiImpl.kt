@@ -1,8 +1,8 @@
-package fi.metatavu.vp.routes
+package fi.metatavu.vp.workplanning.routes
 
 import fi.metatavu.vp.api.model.Route
 import fi.metatavu.vp.api.spec.RoutesApi
-import fi.metatavu.vp.rest.AbstractApi
+import fi.metatavu.vp.workplanning.rest.AbstractApi
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni

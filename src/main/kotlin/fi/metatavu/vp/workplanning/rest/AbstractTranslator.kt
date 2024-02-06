@@ -1,4 +1,4 @@
-package fi.metatavu.vp.rest
+package fi.metatavu.vp.workplanning.rest
 
 /**
  * Abstract translator class

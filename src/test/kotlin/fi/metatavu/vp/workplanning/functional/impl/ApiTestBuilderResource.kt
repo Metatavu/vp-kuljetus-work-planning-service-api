@@ -1,6 +1,6 @@
-package fi.metatavu.vp.functional.impl
+package fi.metatavu.vp.workplanning.functional.impl
 
-import fi.metatavu.vp.functional.TestBuilder
+import fi.metatavu.vp.workplanning.functional.TestBuilder
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
 import fi.metatavu.vp.test.client.infrastructure.ServerException

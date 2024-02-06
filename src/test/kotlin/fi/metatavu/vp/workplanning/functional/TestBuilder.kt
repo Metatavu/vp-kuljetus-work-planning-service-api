@@ -1,12 +1,11 @@
-package fi.metatavu.vp.functional
+package fi.metatavu.vp.workplanning.functional
 
-import fi.metatavu.vp.functional.auth.TestBuilderAuthentication
+import fi.metatavu.vp.workplanning.functional.auth.TestBuilderAuthentication
 import fi.metatavu.jaxrs.test.functional.builder.AbstractAccessTokenTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.jaxrs.test.functional.builder.auth.KeycloakAccessTokenProvider
-import fi.metatavu.jaxrs.test.functional.builder.auth.NullAccessTokenProvider
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import org.eclipse.microprofile.config.ConfigProvider
 

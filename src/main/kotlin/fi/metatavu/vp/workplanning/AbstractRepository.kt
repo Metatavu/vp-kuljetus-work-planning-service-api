@@ -1,4 +1,4 @@
-package fi.metatavu.vp.persistence
+package fi.metatavu.vp.workplanning
 
 import io.quarkus.hibernate.reactive.panache.PanacheQuery
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase

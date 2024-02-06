@@ -1,6 +1,6 @@
-package fi.metatavu.vp.routes
+package fi.metatavu.vp.workplanning.routes
 
-import fi.metatavu.vp.persistence.AbstractRepository
+import fi.metatavu.vp.workplanning.AbstractRepository
 import io.quarkus.panache.common.Parameters
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.*

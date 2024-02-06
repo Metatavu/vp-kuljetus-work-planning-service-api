@@ -1,4 +1,4 @@
-package fi.metatavu.vp.system
+package fi.metatavu.vp.workplanning.system
 
 import fi.metatavu.vp.api.spec.SystemApi
 import io.smallrye.mutiny.Uni

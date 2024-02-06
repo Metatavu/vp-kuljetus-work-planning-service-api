@@ -1,4 +1,4 @@
-package fi.metatavu.vp.functional
+package fi.metatavu.vp.workplanning.functional
 
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.module.kotlin.extensions.When

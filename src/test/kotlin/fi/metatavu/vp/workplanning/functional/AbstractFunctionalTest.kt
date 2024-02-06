@@ -1,4 +1,4 @@
-package fi.metatavu.vp.functional
+package fi.metatavu.vp.workplanning.functional
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -11,8 +11,6 @@ import org.skyscreamer.jsonassert.JSONCompare
 import org.skyscreamer.jsonassert.JSONCompareMode
 import org.skyscreamer.jsonassert.JSONCompareResult
 import org.skyscreamer.jsonassert.comparator.CustomComparator
-import java.io.File
-import java.util.zip.ZipFile
 
 /**
  * Abstract base class for functional tests
@@ -68,7 +66,7 @@ abstract class AbstractFunctionalTest {
      * @return new test builder
      */
     protected fun createTestBuilder(): TestBuilder {
-        return fi.metatavu.vp.functional.TestBuilder(getConfig())
+        return TestBuilder(getConfig())
     }
 
     /**

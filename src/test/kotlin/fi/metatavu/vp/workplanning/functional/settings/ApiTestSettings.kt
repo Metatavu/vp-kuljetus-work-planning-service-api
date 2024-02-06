@@ -1,4 +1,4 @@
-package fi.metatavu.vp.functional.settings
+package fi.metatavu.vp.workplanning.functional.settings
 
 /**
  * Settings implementation for test builder

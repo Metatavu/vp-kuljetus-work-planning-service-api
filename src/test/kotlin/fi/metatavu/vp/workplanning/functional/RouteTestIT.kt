@@ -1,10 +1,10 @@
-package fi.metatavu.vp.functional
+package fi.metatavu.vp.workplanning.functional
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.invalid.InvalidValueTestScenarioBuilder
 import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
-import fi.metatavu.vp.functional.settings.ApiTestSettings
+import fi.metatavu.vp.workplanning.functional.settings.ApiTestSettings
 import fi.metatavu.vp.test.client.models.Route
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.Method

@@ -1,4 +1,4 @@
-package fi.metatavu.vp.routes
+package fi.metatavu.vp.workplanning.routes
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject

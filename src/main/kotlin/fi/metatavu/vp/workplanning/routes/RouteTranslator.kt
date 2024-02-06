@@ -1,6 +1,6 @@
-package fi.metatavu.vp.routes
+package fi.metatavu.vp.workplanning.routes
 
-import fi.metatavu.vp.rest.AbstractTranslator
+import fi.metatavu.vp.workplanning.rest.AbstractTranslator
 import jakarta.enterprise.context.ApplicationScoped
 
 /**

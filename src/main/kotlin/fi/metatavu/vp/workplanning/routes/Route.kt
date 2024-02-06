@@ -1,5 +1,6 @@
-package fi.metatavu.vp.routes
+package fi.metatavu.vp.workplanning.routes
 
+import fi.metatavu.vp.workplanning.Metadata
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -9,7 +10,7 @@ import java.util.*
  * Entity for routes
  */
 @Entity
-class Route: fi.metatavu.vp.persistence.Metadata() {
+class Route: Metadata() {
 
     @Id
     var id: UUID? = null
