@@ -203,6 +203,9 @@ abstract class AbstractApi {
         const val MISSING_REQUEST_BODY = "Missing request body"
 
         const val ROUTE = "Route"
+
+        const val DRIVER_ROLE = "driver"
+        const val MANAGER_ROLE = "manager"
     }
 
 }
