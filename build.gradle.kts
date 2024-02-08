@@ -48,8 +48,6 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
-    testImplementation("org.testcontainers:mysql")
-    testImplementation("org.testcontainers:testcontainers")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
 }
 
