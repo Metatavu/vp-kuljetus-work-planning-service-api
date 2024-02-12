@@ -29,6 +29,18 @@ class RoutesTestBuilderResource(
     }
 
     /**
+     * Creates new route with valid values
+     *
+     * @return created route
+     */
+    fun create(): Route {
+        return addClosable(api.createRoute(Route(
+            vehicleId = VehicleManagementMock.vehicleId1,
+            driverId = UserManagementMock.driverId1
+        )))
+    }
+
+    /**
      * Creates new route
      *
      * @param routeData route data

@@ -6,7 +6,11 @@ import fi.metatavu.invalid.InvalidValueTestScenarioBuilder
 import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.vp.test.client.models.Route
+import fi.metatavu.vp.workplanning.functional.impl.InvalidTestValues
+import fi.metatavu.vp.workplanning.functional.impl.UserManagementMock
+import fi.metatavu.vp.workplanning.functional.impl.VehicleManagementMock
 import fi.metatavu.vp.workplanning.functional.settings.ApiTestSettings
+import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,28 +22,37 @@ import java.util.*
  * A test class for testing Routes API
  */
 @QuarkusTest
+@QuarkusTestResource.List(
+    QuarkusTestResource(VehicleManagementMock::class),
+    QuarkusTestResource(UserManagementMock::class),
+)
 class RouteTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use {
-        val vehicleId = UUID.randomUUID()
-        val vehicleId2 = UUID.randomUUID()
-        val driverId = UUID.randomUUID()
-        val driverId2 = UUID.randomUUID()
-        it.manager.routes.create(Route(vehicleId = vehicleId, driverId = driverId))
-        it.manager.routes.create(Route(vehicleId = vehicleId2, driverId = driverId))
-        it.manager.routes.create(Route(vehicleId = vehicleId2, driverId = driverId2))
+        it.manager.routes.create(Route(
+            vehicleId = VehicleManagementMock.vehicleId1,
+            driverId = UserManagementMock.driverId1
+        ))
+        it.manager.routes.create(Route(
+            vehicleId = VehicleManagementMock.vehicleId1,
+            driverId = UserManagementMock.driverId2
+        ))
+        it.manager.routes.create(Route(
+            vehicleId = VehicleManagementMock.vehicleId2,
+            driverId = UserManagementMock.driverId3
+        ))
         val totalList = it.manager.routes.listRoutes()
         assertEquals(3, totalList.size)
 
         val pagedList = it.manager.routes.listRoutes(first = 1, max = 1)
         assertEquals(1, pagedList.size)
 
-        val byDriver = it.manager.routes.listRoutes(driverId = driverId)
-        assertEquals(2, byDriver.size)
+        val byDriver = it.manager.routes.listRoutes(driverId = UserManagementMock.driverId3)
+        assertEquals(1, byDriver.size)
 
-        val byVehicle = it.manager.routes.listRoutes(vehicleId = vehicleId)
-        assertEquals(1, byVehicle.size)
+        val byVehicle = it.manager.routes.listRoutes(vehicleId = VehicleManagementMock.vehicleId1)
+        assertEquals(2, byVehicle.size)
     }
     
     @Test
@@ -51,7 +64,10 @@ class RouteTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreate() = createTestBuilder().use {
-        val routeData = Route(vehicleId = UUID.randomUUID(), driverId = UUID.randomUUID())
+        val routeData = Route(
+            vehicleId = VehicleManagementMock.vehicleId1,
+            driverId = UserManagementMock.driverId1
+        )
         val createdRoute = it.manager.routes.create(routeData)
         assertNotNull(createdRoute)
         assertNotNull(createdRoute.id)
@@ -73,9 +89,8 @@ class RouteTestIT : AbstractFunctionalTest() {
             basePath = ApiTestSettings.apiBasePath
         )
             .body(
-                // also add cases about invalid route data after the route verification is implemented
                 InvalidValueTestScenarioBody(
-                    values = InvalidValues.STRING_NOT_NULL,
+                    values = InvalidTestValues.routeBody,
                     expectedStatus = 400
                 )
             )
@@ -85,18 +100,17 @@ class RouteTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFind() = createTestBuilder().use {
-        val routeData = Route(vehicleId = UUID.randomUUID(), driverId = UUID.randomUUID())
-        val createdRoute = it.manager.routes.create(routeData)
+        val createdRoute = it.manager.routes.create()
         val foundRoute = it.manager.routes.findRoute(createdRoute.id!!)
         assertNotNull(foundRoute)
         assertEquals(createdRoute.id, foundRoute.id)
-        assertEquals(routeData.vehicleId, foundRoute.vehicleId)
-        assertEquals(routeData.driverId, foundRoute.driverId)
+        assertEquals(createdRoute.vehicleId, foundRoute.vehicleId)
+        assertEquals(createdRoute.driverId, foundRoute.driverId)
     }
 
     @Test
     fun testFindFail() = createTestBuilder().use {
-        val createdRoute = it.manager.routes.create(Route(vehicleId = UUID.randomUUID(), driverId = UUID.randomUUID()))
+        val createdRoute = it.manager.routes.create()
 
         it.user.routes.assertFindRouteFail(403, createdRoute.id!!)
         assertNotNull(it.driver.routes.findRoute(createdRoute.id))
@@ -122,9 +136,11 @@ class RouteTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdate() = createTestBuilder().use {
-        val routeData = Route(vehicleId = UUID.randomUUID(), driverId = UUID.randomUUID())
-        val createdRoute = it.manager.routes.create(routeData)
-        val updatedRouteData = Route(vehicleId = UUID.randomUUID(), driverId = UUID.randomUUID())
+        val createdRoute = it.manager.routes.create()
+        val updatedRouteData = Route(
+            vehicleId = VehicleManagementMock.vehicleId2,
+            driverId = UserManagementMock.driverId2
+        )
         val updatedRoute = it.manager.routes.updateRoute(createdRoute.id!!, updatedRouteData)
         assertNotNull(updatedRoute)
         assertEquals(createdRoute.id, updatedRoute.id)
@@ -134,8 +150,7 @@ class RouteTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdateFail() = createTestBuilder().use {
-        val routeData = Route(vehicleId = UUID.randomUUID(), driverId = UUID.randomUUID())
-        val createdRoute = it.manager.routes.create(routeData)
+        val createdRoute = it.manager.routes.create()
 
         it.user.routes.assertUpdateRouteFail(403, createdRoute.id!!, createdRoute)
         it.driver.routes.assertUpdateRouteFail(403, createdRoute.id!!, createdRoute)
@@ -155,14 +170,19 @@ class RouteTestIT : AbstractFunctionalTest() {
                     default = createdRoute.id
                 )
             )
+            .body(
+                InvalidValueTestScenarioBody(
+                    values = InvalidTestValues.routeBody,
+                    expectedStatus = 400
+                )
+            )
             .build()
             .test()
     }
 
     @Test
     fun testDelete() = createTestBuilder().use {
-        val routeData = Route(vehicleId = UUID.randomUUID(), driverId = UUID.randomUUID())
-        val createdRoute = it.manager.routes.create(routeData)
+        val createdRoute = it.manager.routes.create()
         it.manager.routes.deleteRoute(createdRoute.id!!)
         val routes = it.manager.routes.listRoutes()
         assertEquals(0, routes.size)
@@ -170,7 +190,7 @@ class RouteTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDeleteFail() = createTestBuilder().use {
-        val createdRoute = it.manager.routes.create(Route(vehicleId = UUID.randomUUID(), driverId = UUID.randomUUID()))
+        val createdRoute = it.manager.routes.create()
 
         it.user.routes.assertDeleteRouteFail(403, createdRoute.id!!)
         it.driver.routes.assertDeleteRouteFail(403, createdRoute.id)

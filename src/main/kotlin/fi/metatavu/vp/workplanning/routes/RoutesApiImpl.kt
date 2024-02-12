@@ -44,6 +44,10 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
     override fun createRoute(route: Route): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
+            val isValidRoute = routeController.isValidRoute(route)
+            if (!isValidRoute) {
+                return@async createBadRequest(INVALID_ROUTE)
+            }
             val createdRoute = routeController.createRoute(route, userId)
             createOk(routeTranslator.translate(createdRoute))
         }.asUni()
@@ -61,6 +65,12 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
             val existingRoute = routeController.findRoute(routeId) ?: return@async createNotFound(createNotFoundMessage(ROUTE, routeId))
+            if (route.driverId != existingRoute.driverId || route.vehicleId != existingRoute.vehicleId) {
+                val isValidRoute = routeController.isValidRoute(route)
+                if (!isValidRoute) {
+                    return@async createBadRequest(INVALID_ROUTE)
+                }
+            }
             val updatedRoute = routeController.updateRoute(existingRoute, route, userId)
             createOk(routeTranslator.translate(updatedRoute))
         }.asUni()

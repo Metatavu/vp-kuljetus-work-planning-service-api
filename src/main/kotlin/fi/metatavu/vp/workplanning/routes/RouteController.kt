@@ -1,7 +1,11 @@
 package fi.metatavu.vp.workplanning.routes
 
+import fi.metatavu.vp.usermanagement.spec.DriversApi
+import fi.metatavu.vp.vehiclemanagement.spec.VehiclesApi
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.*
 
 /**
@@ -12,6 +16,63 @@ class RouteController {
 
     @Inject
     lateinit var routeRepository: RouteRepository
+
+    @RestClient
+    lateinit var vehiclesApi: VehiclesApi
+
+    @RestClient
+    lateinit var driversApi: DriversApi
+
+    @Inject
+    lateinit var logger: org.jboss.logging.Logger
+
+    /**
+     * Checks if route is valid
+     *
+     * @param route route
+     * @return true if route is valid, false otherwise
+     */
+    suspend fun isValidRoute(route: fi.metatavu.vp.api.model.Route): Boolean {
+        if (route.driverId != null && !driverExists(route.driverId)) {
+            return false
+        }
+
+        if (route.vehicleId != null && !vehicleExists(route.vehicleId)) {
+            return false
+        }
+
+        return true
+    }
+
+    /**
+     * Checks if vehicle exists
+     *
+     * @param vehicleId vehicle id
+     * @return true if vehicle exists, false otherwise
+     */
+    suspend fun vehicleExists(vehicleId: UUID): Boolean {
+        return try {
+            vehiclesApi.findVehicle(vehicleId).awaitSuspending().status == 200
+        } catch (e: Exception) {
+            logger.error("Error while searching for vehicle $vehicleId", e)
+            false
+        }
+    }
+
+    /**
+     * Checks if driver exists
+     *
+     * @param driverId driver id
+     * @return true if driver exists, false otherwise
+     */
+    suspend fun driverExists(driverId: UUID): Boolean {
+        return try {
+            driversApi.findDriver(driverId).awaitSuspending().status == 200
+        } catch (e: Exception) {
+            logger.error("Error while searching for driver $driverId", e)
+            false
+        }
+    }
 
     /**
      * Lists routes
