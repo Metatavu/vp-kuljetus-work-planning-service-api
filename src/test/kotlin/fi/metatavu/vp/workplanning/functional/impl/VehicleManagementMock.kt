@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
-import fi.metatavu.vp.vehiclemanagement.model.Vehicle
+import fi.metatavu.vp.vehiclemanagement.model.Truck
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager
 import java.util.*
 
@@ -22,7 +22,7 @@ class VehicleManagementMock : QuarkusTestResourceLifecycleManager {
 
 
         wireMockServer!!.stubFor(
-            WireMock.get(WireMock.urlPathMatching("/v1/vehicles/.*"))
+            WireMock.get(WireMock.urlPathMatching("/v1/trucks/.*"))
                 .withHeader(authHeader, bearerPattern)
                 .willReturn(
                     WireMock.aResponse()
@@ -31,17 +31,19 @@ class VehicleManagementMock : QuarkusTestResourceLifecycleManager {
         )
 
         wireMockServer!!.stubFor(
-            WireMock.get(WireMock.urlEqualTo("/v1/vehicles/${vehicleId1}"))
+            WireMock.get(WireMock.urlEqualTo("/v1/trucks/${truckId1}"))
                 .withHeader(authHeader, bearerPattern)
                 .willReturn(
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
                             jacksonObjectMapper().writeValueAsString(
-                                Vehicle(
-                                    id = vehicleId1,
-                                    towableIds = listOf(UUID.randomUUID()),
-                                    truckId = UUID.randomUUID()
+                                Truck(
+                                    plateNumber = "ABC-1",
+                                    type = Truck.Type.TRUCK,
+                                    vin = "0",
+                                    activeVehicleId = UUID.randomUUID(),
+                                    id = truckId1
                                 )
                             )
                         )
@@ -49,17 +51,19 @@ class VehicleManagementMock : QuarkusTestResourceLifecycleManager {
         )
 
         wireMockServer!!.stubFor(
-            WireMock.get(WireMock.urlEqualTo("/v1/vehicles/${vehicleId2}"))
+            WireMock.get(WireMock.urlEqualTo("/v1/trucks/${truckId2}"))
                 .withHeader(authHeader, bearerPattern)
                 .willReturn(
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
                             jacksonObjectMapper().writeValueAsString(
-                                Vehicle(
-                                    id = vehicleId2,
-                                    towableIds = listOf(UUID.randomUUID()),
-                                    truckId = UUID.randomUUID()
+                                Truck(
+                                    plateNumber = "ABC-2",
+                                    type = Truck.Type.TRUCK,
+                                    vin = "1",
+                                    activeVehicleId = UUID.randomUUID(),
+                                    id = truckId2
                                 )
                             )
                         )
@@ -67,17 +71,19 @@ class VehicleManagementMock : QuarkusTestResourceLifecycleManager {
         )
 
         wireMockServer!!.stubFor(
-            WireMock.get(WireMock.urlEqualTo("/v1/vehicles/${vehicleId3}"))
+            WireMock.get(WireMock.urlEqualTo("/v1/trucks/${truckId3}"))
                 .withHeader(authHeader, bearerPattern)
                 .willReturn(
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
                             jacksonObjectMapper().writeValueAsString(
-                                Vehicle(
-                                    id = vehicleId3,
-                                    towableIds = listOf(UUID.randomUUID()),
-                                    truckId = UUID.randomUUID()
+                                Truck(
+                                    plateNumber = "ABC-3",
+                                    type = Truck.Type.TRUCK,
+                                    vin = "2",
+                                    activeVehicleId = UUID.randomUUID(),
+                                    id = truckId3
                                 )
                             )
                         )
@@ -85,7 +91,7 @@ class VehicleManagementMock : QuarkusTestResourceLifecycleManager {
         )
 
         return java.util.Map.of(
-            "quarkus.rest-client.\"fi.metatavu.vp.vehiclemanagement.spec.VehiclesApi\".url",
+            "quarkus.rest-client.\"fi.metatavu.vp.vehiclemanagement.spec.TrucksApi\".url",
             wireMockServer!!.baseUrl()
         )
     }
@@ -97,8 +103,8 @@ class VehicleManagementMock : QuarkusTestResourceLifecycleManager {
     }
 
     companion object {
-        val vehicleId1: UUID = UUID.randomUUID()
-        val vehicleId2: UUID = UUID.randomUUID()
-        val vehicleId3: UUID = UUID.randomUUID()
+        val truckId1: UUID = UUID.fromString("32d3e7c7-a2b7-4eb6-89f5-c74a9ef3c5c5")
+        val truckId2: UUID = UUID.fromString("a09a7d38-e685-4ce0-b435-4d562da27625")
+        val truckId3: UUID = UUID.fromString("9ccc9ba9-b8fd-4404-88b1-e3ec90cfa681")
     }
 }

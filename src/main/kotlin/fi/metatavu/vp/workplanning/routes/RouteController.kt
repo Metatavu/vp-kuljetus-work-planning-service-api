@@ -1,11 +1,12 @@
 package fi.metatavu.vp.workplanning.routes
 
 import fi.metatavu.vp.usermanagement.spec.DriversApi
-import fi.metatavu.vp.vehiclemanagement.spec.VehiclesApi
+import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -18,7 +19,7 @@ class RouteController {
     lateinit var routeRepository: RouteRepository
 
     @RestClient
-    lateinit var vehiclesApi: VehiclesApi
+    lateinit var trucksApi: TrucksApi
 
     @RestClient
     lateinit var driversApi: DriversApi
@@ -37,7 +38,7 @@ class RouteController {
             return false
         }
 
-        if (route.vehicleId != null && !vehicleExists(route.vehicleId)) {
+        if (route.truckId != null && !truckExists(route.truckId)) {
             return false
         }
 
@@ -45,16 +46,16 @@ class RouteController {
     }
 
     /**
-     * Checks if vehicle exists
+     * Checks if truck exists
      *
-     * @param vehicleId vehicle id
-     * @return true if vehicle exists, false otherwise
+     * @param id truck id
+     * @return true if truck exists, false otherwise
      */
-    suspend fun vehicleExists(vehicleId: UUID): Boolean {
+    suspend fun truckExists(id: UUID): Boolean {
         return try {
-            vehiclesApi.findVehicle(vehicleId).awaitSuspending().status == 200
+            trucksApi.findTruck(id).awaitSuspending().status == 200
         } catch (e: Exception) {
-            logger.error("Error while searching for vehicle $vehicleId", e)
+            logger.error("Error while searching for vehicle $id", e)
             false
         }
     }
@@ -77,14 +78,30 @@ class RouteController {
     /**
      * Lists routes
      *
-     * @param vehicleId vehicle id
+     * @param truckId truck id
      * @param driverId driver id
+     * @param departureAfter departure after
+     * @param departureBefore departure before
      * @param first first result
      * @param max max results
-     * @return list of routes and list length
+     * @return pair of list of routes and total count
      */
-    suspend fun listRoutes(vehicleId: UUID?, driverId: UUID?, first: Int?, max: Int?): Pair<List<Route>, Long> {
-        return routeRepository.listRoutes(vehicleId, driverId, first, max)
+    suspend fun listRoutes(
+        truckId: UUID?,
+        driverId: UUID?,
+        departureAfter: OffsetDateTime?,
+        departureBefore: OffsetDateTime?,
+        first: Int?,
+        max: Int?
+    ): Pair<List<Route>, Long> {
+        return routeRepository.listRoutes(
+            truckId = truckId,
+            driverId = driverId,
+            departureAfter = departureAfter,
+            departureBefore = departureBefore,
+            first = first,
+            max = max
+        )
     }
 
     /**
@@ -95,7 +112,14 @@ class RouteController {
      * @return created route
      */
     suspend fun createRoute(routeRestData: fi.metatavu.vp.api.model.Route, userId: UUID): Route {
-        return routeRepository.create(UUID.randomUUID(), routeRestData.vehicleId, routeRestData.driverId, userId)
+        return routeRepository.create(
+            id = UUID.randomUUID(),
+            name = routeRestData.name,
+            departureTime = routeRestData.departureTime,
+            truckId = routeRestData.truckId,
+            driverId = routeRestData.driverId,
+            creatorId = userId
+        )
     }
 
     /**
@@ -117,7 +141,9 @@ class RouteController {
      * @return updated route
      */
     suspend fun updateRoute(route: Route, routeRestData: fi.metatavu.vp.api.model.Route, userId: UUID): Route {
-        route.vehicleId = routeRestData.vehicleId
+        route.name = routeRestData.name
+        route.departureTime = routeRestData.departureTime
+        route.truckId = routeRestData.truckId
         route.driverId = routeRestData.driverId
         route.lastModifierId = userId
         return routeRepository.persistSuspending(route)

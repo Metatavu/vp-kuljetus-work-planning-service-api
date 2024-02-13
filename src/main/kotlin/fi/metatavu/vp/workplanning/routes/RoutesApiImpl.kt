@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import java.time.OffsetDateTime
 import java.util.*
 
 @RequestScoped
@@ -33,11 +34,24 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
     lateinit var vertx: Vertx
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listRoutes(vehicleId: UUID?, driverId: UUID?, first: Int?, max: Int?): Uni<Response> =
-        CoroutineScope(vertx.dispatcher()).async {
-            val ( routes, len ) = routeController.listRoutes(vehicleId, driverId, first, max)
-            createOk(routes.map { routeTranslator.translate(it) }, len)
-        }.asUni()
+    override fun listRoutes(
+        truckId: UUID?,
+        driverId: UUID?,
+        departureAfter: OffsetDateTime?,
+        departureBefore: OffsetDateTime?,
+        first: Int?,
+        max: Int?
+    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        val ( routes, len ) = routeController.listRoutes(
+            truckId = truckId,
+            driverId = driverId,
+            departureAfter = departureAfter,
+            departureBefore = departureBefore,
+            first = first,
+            max = max
+        )
+        createOk(routes.map { routeTranslator.translate(it) }, len)
+    }.asUni()
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
@@ -65,7 +79,7 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
             val existingRoute = routeController.findRoute(routeId) ?: return@async createNotFound(createNotFoundMessage(ROUTE, routeId))
-            if (route.driverId != existingRoute.driverId || route.vehicleId != existingRoute.vehicleId) {
+            if (route.driverId != existingRoute.driverId || route.truckId != existingRoute.truckId) {
                 val isValidRoute = routeController.isValidRoute(route)
                 if (!isValidRoute) {
                     return@async createBadRequest(INVALID_ROUTE)

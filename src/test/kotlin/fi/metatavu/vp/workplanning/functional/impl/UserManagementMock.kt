@@ -72,9 +72,6 @@ class UserManagementMock : QuarkusTestResourceLifecycleManager {
                         )
                 )
         )
-        println("Valid drivers are: \n$driverId1, \n$driverId2, \n$driverId3")
-
-
 
         return java.util.Map.of(
             "quarkus.rest-client.\"fi.metatavu.vp.usermanagement.spec.DriversApi\".url",

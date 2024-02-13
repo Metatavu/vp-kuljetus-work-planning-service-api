@@ -8,6 +8,7 @@ import fi.metatavu.vp.test.client.models.Route
 import fi.metatavu.vp.workplanning.functional.TestBuilder
 import fi.metatavu.vp.workplanning.functional.settings.ApiTestSettings
 import org.junit.Assert
+import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
@@ -35,8 +36,10 @@ class RoutesTestBuilderResource(
      */
     fun create(): Route {
         return addClosable(api.createRoute(Route(
-            vehicleId = VehicleManagementMock.vehicleId1,
-            driverId = UserManagementMock.driverId1
+            truckId = VehicleManagementMock.truckId1,
+            driverId = UserManagementMock.driverId1,
+            name = "Route 1",
+            departureTime = OffsetDateTime.now().toString()
         )))
     }
 
@@ -74,14 +77,30 @@ class RoutesTestBuilderResource(
     /**
      * Lists routes
      *
-     * @param vehicleId vehicle id
+     * @param truckId vehicle id
      * @param driverId driver id
+     * @param departureBefore departure before
+     * @param departureAfter departure after
      * @param first first result
      * @param max max results
      * @return list of routes
      */
-    fun listRoutes(vehicleId: UUID? = null, driverId: UUID? = null, first: Int? = null, max: Int? = null): Array<Route> {
-        return api.listRoutes(vehicleId, driverId, first, max)
+    fun listRoutes(
+        truckId: UUID? = null,
+        driverId: UUID? = null,
+        departureBefore: String? = null,
+        departureAfter: String? = null,
+        first: Int? = null,
+        max: Int? = null
+    ): Array<Route> {
+        return api.listRoutes(
+            truckId = truckId,
+            driverId = driverId,
+            departureBefore = departureBefore,
+            departureAfter = departureAfter,
+            first = first,
+            max = max
+        )
     }
 
     /**

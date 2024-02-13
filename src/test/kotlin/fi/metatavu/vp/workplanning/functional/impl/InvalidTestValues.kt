@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.invalid.providers.SimpleInvalidValueProvider
 import fi.metatavu.vp.test.client.models.Route
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -16,12 +17,16 @@ class InvalidTestValues: InvalidValues() {
         // Invalid route body options
         val routeBody = listOf(
             Route(
-                vehicleId = VehicleManagementMock.vehicleId1,
-                driverId = UUID.randomUUID()
+                truckId = VehicleManagementMock.truckId1,
+                driverId = UUID.randomUUID(),
+                name = "Route 1",
+                departureTime = OffsetDateTime.now().toString()
             ),
             Route(
-                vehicleId = UUID.randomUUID(),
-                driverId = UserManagementMock.driverId1
+                truckId = UUID.randomUUID(),
+                driverId = UserManagementMock.driverId1,
+                name = "Route 1",
+                departureTime = OffsetDateTime.now().toString()
             )
         ).map { jacksonObjectMapper().writeValueAsString(it) }
             .map { SimpleInvalidValueProvider(it) }
