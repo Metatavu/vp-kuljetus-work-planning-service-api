@@ -84,7 +84,6 @@ class VehicleManagementMock : QuarkusTestResourceLifecycleManager {
                 )
         )
 
-        println("Valid vehicles are: \n$vehicleId1, \n$vehicleId2, \n$vehicleId3")
         return java.util.Map.of(
             "quarkus.rest-client.\"fi.metatavu.vp.vehiclemanagement.spec.VehiclesApi\".url",
             wireMockServer!!.baseUrl()
