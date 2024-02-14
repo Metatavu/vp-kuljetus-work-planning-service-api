@@ -1,8 +1,10 @@
 package fi.metatavu.vp.workplanning.functional.impl
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
+import fi.metatavu.vp.usermanagement.model.Driver
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager
 import java.util.*
 
@@ -28,6 +30,11 @@ class UserManagementMock : QuarkusTestResourceLifecycleManager {
                 )
         )
 
+        val defaultDriver = Driver(
+            id = driverId1,
+            displayName = "Driver full name"
+        )
+
         wireMockServer!!.stubFor(
             WireMock.get(WireMock.urlEqualTo("/v1/drivers/$driverId1"))
                 .withHeader(authHeader, bearerPattern)
@@ -35,10 +42,7 @@ class UserManagementMock : QuarkusTestResourceLifecycleManager {
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
-                            "{" +
-                                "\"id\": \"$driverId1\"," +
-                                "\"displayName\": \"Driver full name\"" +
-                                "}"
+                            jacksonObjectMapper().writeValueAsString(defaultDriver)
                         )
                 )
         )
@@ -50,13 +54,11 @@ class UserManagementMock : QuarkusTestResourceLifecycleManager {
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
-                            "{" +
-                                "\"id\": \"$driverId2\"," +
-                                "\"displayName\": \"Driver full name 2\"" +
-                                "}"
+                            jacksonObjectMapper().writeValueAsString(defaultDriver.copy(id = driverId2))
                         )
                 )
         )
+
 
         wireMockServer!!.stubFor(
             WireMock.get(WireMock.urlEqualTo("/v1/drivers/$driverId3"))
@@ -65,10 +67,7 @@ class UserManagementMock : QuarkusTestResourceLifecycleManager {
                     WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
-                            "{" +
-                                "\"id\": \"$driverId3\"," +
-                                "\"displayName\": \"Driver full name 3\"" +
-                                "}"
+                            jacksonObjectMapper().writeValueAsString(defaultDriver.copy(id = driverId3))
                         )
                 )
         )
