@@ -9,6 +9,7 @@ import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asUni
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.dispatcher
+import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
@@ -31,12 +32,14 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
     @Inject
     lateinit var vertx: Vertx
 
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun listRoutes(vehicleId: UUID?, driverId: UUID?, first: Int?, max: Int?): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
             val ( routes, len ) = routeController.listRoutes(vehicleId, driverId, first, max)
             createOk(routes.map { routeTranslator.translate(it) }, len)
         }.asUni()
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun createRoute(route: Route): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
@@ -45,12 +48,14 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
             createOk(routeTranslator.translate(createdRoute))
         }.asUni()
 
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun findRoute(routeId: UUID): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
             val route = routeController.findRoute(routeId) ?: return@async createNotFound(createNotFoundMessage(ROUTE, routeId))
             createOk(routeTranslator.translate(route))
         }.asUni()
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun updateRoute(routeId: UUID, route: Route): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
@@ -60,6 +65,7 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
             createOk(routeTranslator.translate(updatedRoute))
         }.asUni()
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun deleteRoute(routeId: UUID): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {

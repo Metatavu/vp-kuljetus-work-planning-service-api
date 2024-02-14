@@ -12,7 +12,11 @@ class RouteTranslator: AbstractTranslator<Route, fi.metatavu.vp.api.model.Route>
         return fi.metatavu.vp.api.model.Route(
             id = entity.id,
             vehicleId = entity.vehicleId,
-            driverId = entity.driverId
+            driverId = entity.driverId,
+            createdAt = entity.createdAt,
+            modifiedAt = entity.modifiedAt,
+            creatorId = entity.creatorId,
+            lastModifierId = entity.lastModifierId
         )
     }
 
