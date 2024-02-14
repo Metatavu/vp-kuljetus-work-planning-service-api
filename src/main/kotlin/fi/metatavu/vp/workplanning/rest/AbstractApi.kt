@@ -202,6 +202,8 @@ abstract class AbstractApi {
         const val FORBIDDEN = "Forbidden"
         const val MISSING_REQUEST_BODY = "Missing request body"
 
+        const val INVALID_ROUTE = "Invalid route"
+
         const val ROUTE = "Route"
 
         const val DRIVER_ROLE = "driver"

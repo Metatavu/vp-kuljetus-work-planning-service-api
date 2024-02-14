@@ -26,4 +26,21 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet id="route_modifications" author="katja danilova">
+        <dropColumn tableName="route" columnName="vehicleid"/>
+        <addColumn tableName="route">
+            <column name="truckid" type="binary(16)"/>
+        </addColumn>
+        <addColumn tableName="route">
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="route">
+            <column name="departuretime" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

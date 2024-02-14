@@ -17,6 +17,7 @@ val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
 val okhttpVersion: String by project
+val wiremockVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -29,6 +30,7 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-resteasy-reactive-kotlin")
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
+    implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-kotlin")
 
@@ -44,6 +46,7 @@ dependencies {
     }
     implementation("org.jboss.logging:commons-logging-jboss-logging")
 
+    testImplementation("org.wiremock:wiremock:$wiremockVersion")
     testImplementation("io.rest-assured:kotlin-extensions")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkus:quarkus-junit5")
@@ -61,6 +64,8 @@ java {
 
 sourceSets["main"].java {
     srcDir("build/generated/api-spec/src/main/kotlin")
+    srcDir("build/generated/vehicle-management-api-spec/src/main/kotlin")
+    srcDir("build/generated/user-management-api-spec/src/main/kotlin")
 }
 sourceSets["test"].java {
     srcDir("build/generated/api-client/src/main/kotlin")
@@ -119,8 +124,50 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     this.configOptions.put("enumPropertyNaming", "UPPERCASE")
 }
 
+val generateVehicleManagementApiClient = tasks.register("generateVehicleManagementApiClient",GenerateTask::class){
+    setProperty("generatorName", "kotlin-server")
+    setProperty("inputSpec",  "$rootDir/vp-kuljetus-transport-management-specs/services/vehicle-management-services.yaml")
+    setProperty("outputDir", "$buildDir/generated/vehicle-management-api-spec")
+    setProperty("apiPackage", "${project.group}.vehiclemanagement.spec")
+    setProperty("invokerPackage", "${project.group}.vehiclemanagement.invoker")
+    setProperty("modelPackage", "${project.group}.vehiclemanagement.model")
+    setProperty("templateDir", "$rootDir/openapi/rest-client")
+    setProperty("validateSpec", false)
+
+    this.configOptions.put("library", "jaxrs-spec")
+    this.configOptions.put("dateLibrary", "java8")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
+    this.configOptions.put("interfaceOnly", "true")
+    this.configOptions.put("useMutiny", "true")
+    this.configOptions.put("returnResponse", "true")
+    this.configOptions.put("useSwaggerAnnotations", "false")
+    this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
+}
+
+val generateUserManagementApiClient = tasks.register("generateUserManagementApiClient",GenerateTask::class){
+    setProperty("generatorName", "kotlin-server")
+    setProperty("inputSpec",  "$rootDir/vp-kuljetus-transport-management-specs/services/user-management-services.yaml")
+    setProperty("outputDir", "$buildDir/generated/user-management-api-spec")
+    setProperty("apiPackage", "${project.group}.usermanagement.spec")
+    setProperty("invokerPackage", "${project.group}.usermanagement.invoker")
+    setProperty("modelPackage", "${project.group}.usermanagement.model")
+    setProperty("templateDir", "$rootDir/openapi/rest-client")
+    setProperty("validateSpec", false)
+
+    this.configOptions.put("library", "jaxrs-spec")
+    this.configOptions.put("dateLibrary", "java8")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
+    this.configOptions.put("interfaceOnly", "true")
+    this.configOptions.put("useMutiny", "true")
+    this.configOptions.put("returnResponse", "true")
+    this.configOptions.put("useSwaggerAnnotations", "false")
+    this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
+}
+
 tasks.named("compileKotlin") {
     dependsOn(generateApiSpec)
+    dependsOn(generateVehicleManagementApiClient)
+    dependsOn(generateUserManagementApiClient)
 }
 
 tasks.named("compileTestKotlin") {
