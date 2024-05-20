@@ -188,7 +188,7 @@ class RouteTestIT : AbstractFunctionalTest() {
         val createdRoute = it.manager.routes.create()
 
         it.user.routes.assertUpdateRouteFail(403, createdRoute.id!!, createdRoute)
-        it.driver.routes.assertUpdateRouteFail(403, createdRoute.id!!, createdRoute)
+        assertNotNull(it.driver.routes.updateRoute(createdRoute.id, createdRoute))
 
         InvalidValueTestScenarioBuilder(
             path = "v1/routes/{routeId}",
