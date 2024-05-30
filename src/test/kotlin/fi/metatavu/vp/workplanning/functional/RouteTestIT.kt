@@ -56,6 +56,15 @@ class RouteTestIT : AbstractFunctionalTest() {
         val pagedList = it.manager.routes.listRoutes(first = 1, max = 1)
         assertEquals(1, pagedList.size)
 
+        val pagedList1 = it.manager.routes.listRoutes(first = 2)
+        assertEquals(1, pagedList1.size)
+
+        val pagedList2 = it.manager.routes.listRoutes(first = 3)
+        assertEquals(0, pagedList2.size)
+
+        val pagedList3 = it.manager.routes.listRoutes(max = 2)
+        assertEquals(2, pagedList3.size)
+
         val byDriver = it.manager.routes.listRoutes(driverId = UserManagementMock.driverId3)
         assertEquals(1, byDriver.size)
 
@@ -179,7 +188,7 @@ class RouteTestIT : AbstractFunctionalTest() {
         val createdRoute = it.manager.routes.create()
 
         it.user.routes.assertUpdateRouteFail(403, createdRoute.id!!, createdRoute)
-        it.driver.routes.assertUpdateRouteFail(403, createdRoute.id!!, createdRoute)
+        assertNotNull(it.driver.routes.updateRoute(createdRoute.id, createdRoute))
 
         InvalidValueTestScenarioBuilder(
             path = "v1/routes/{routeId}",
