@@ -73,7 +73,7 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
             createOk(routeTranslator.translate(route))
         }.asUni()
 
-    @RolesAllowed(MANAGER_ROLE)
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     @WithTransaction
     override fun updateRoute(routeId: UUID, route: Route): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
