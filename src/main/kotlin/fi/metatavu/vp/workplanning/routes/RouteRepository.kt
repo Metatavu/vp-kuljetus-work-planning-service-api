@@ -2,6 +2,7 @@ package fi.metatavu.vp.workplanning.routes
 
 import fi.metatavu.vp.workplanning.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
+import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
 import java.time.OffsetDateTime
 import java.util.*
@@ -84,9 +85,8 @@ class RouteRepository : AbstractRepository<Route, UUID>() {
             parameters.and("departureBefore", departureBefore)
         }
 
-        queryBuilder.append("ORDER BY modifiedAt DESC")
         return applyFirstMaxToQuery(
-            query = find(queryBuilder.toString(), parameters),
+            query = find(queryBuilder.toString(), Sort.ascending("departureTime"), parameters),
             firstIndex = first,
             maxResults = max
         )
