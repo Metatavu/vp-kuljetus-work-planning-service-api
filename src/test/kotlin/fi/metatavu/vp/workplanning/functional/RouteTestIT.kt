@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 /**
@@ -32,19 +33,19 @@ class RouteTestIT : AbstractFunctionalTest() {
     @Test
     fun testList() = createTestBuilder().use {
         val now = OffsetDateTime.now()
-        it.manager.routes.create(Route(
+        val route1 = it.manager.routes.create(Route(
             truckId = VehicleManagementMock.truckId1,
             driverId = UserManagementMock.driverId1,
             name = "Route 1",
             departureTime = OffsetDateTime.now().plusDays(1).toString()
         ))
-        it.manager.routes.create(Route(
+        val route2 = it.manager.routes.create(Route(
             truckId = VehicleManagementMock.truckId1,
             driverId = UserManagementMock.driverId2,
             name = "Route 2",
             departureTime = OffsetDateTime.now().plusHours(1).toString()
         ))
-        it.manager.routes.create(Route(
+        val route3 = it.manager.routes.create(Route(
             truckId = VehicleManagementMock.truckId2,
             driverId = UserManagementMock.driverId3,
             name = "Route 3",
@@ -52,6 +53,11 @@ class RouteTestIT : AbstractFunctionalTest() {
         ))
         val totalList = it.manager.routes.listRoutes()
         assertEquals(3, totalList.size)
+
+        // Assert that routes are sorted by departure time
+        assertEquals(route3.id, totalList[0].id)
+        assertEquals(route2.id, totalList[1].id)
+        assertEquals(route1.id, totalList[2].id)
 
         val pagedList = it.manager.routes.listRoutes(first = 1, max = 1)
         assertEquals(1, pagedList.size)
@@ -76,6 +82,12 @@ class RouteTestIT : AbstractFunctionalTest() {
 
         val byTimeBefore = it.manager.routes.listRoutes(departureBefore = now.toString())
         assertEquals(1, byTimeBefore.size)
+
+        // Assert that routes are sorted by departure time
+        val routesAfterToday = it.manager.routes.listRoutes(departureAfter = now.truncatedTo(ChronoUnit.DAYS).toString())
+        assertEquals(2, routesAfterToday.size)
+        assertEquals(route2.id, routesAfterToday[0].id)
+        assertEquals(route1.id, routesAfterToday[1].id)
     }
     
     @Test
