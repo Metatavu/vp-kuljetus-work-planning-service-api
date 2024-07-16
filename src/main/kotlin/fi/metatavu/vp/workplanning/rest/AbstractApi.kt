@@ -2,16 +2,15 @@ package fi.metatavu.vp.workplanning.rest
 
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asUni
+import io.vertx.core.Context
 import io.vertx.core.Vertx
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
-import io.vertx.kotlin.coroutines.dispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
 import org.eclipse.microprofile.jwt.JsonWebToken
+import java.lang.Runnable
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Abstract base class for all API services
@@ -21,24 +20,7 @@ import java.util.*
 abstract class AbstractApi {
 
     @Inject
-    lateinit var vertx: Vertx
-
-    @Inject
     private lateinit var jsonWebToken: JsonWebToken
-
-    /**
-     * Wraps a block of code in a coroutine scope using a vertx dispatcher and a timeout
-     *
-     * @param block block of code to run
-     * @param requestTimeOut request timeout in milliseconds. Defaults to 10 seconds
-     * @return Uni
-     */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    protected fun <T> withCoroutineScope(block: suspend () -> T, requestTimeOut: Long = 10000L): Uni<T> {
-        return CoroutineScope(vertx.dispatcher())
-            .async { withTimeout(requestTimeOut) { block() } }
-            .asUni()
-    }
 
     /**
      * Returns logged user id
@@ -215,6 +197,38 @@ abstract class AbstractApi {
             .status(status)
             .entity(entity)
             .build()
+    }
+
+    /**
+     * Executes a block with coroutine scope
+     *
+     * @param requestTimeOut request timeout in milliseconds. Default is 10000
+     * @param block block to execute
+     * @return Uni
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    protected fun <T> withCoroutineScope(requestTimeOut: Long = 10000L, block: suspend () -> T): Uni<T> {
+        val context = Vertx.currentContext()
+        val dispatcher = VertxCoroutineDispatcher(context)
+
+        return CoroutineScope(context = dispatcher)
+            .async {
+                withTimeout(requestTimeOut) {
+                    block()
+                }
+            }
+            .asUni()
+    }
+
+    /**
+     * Custom vertx coroutine dispatcher that keeps the context stable during the execution
+     */
+    private class VertxCoroutineDispatcher(private val vertxContext: Context): CoroutineDispatcher() {
+        override fun dispatch(context: CoroutineContext, block: Runnable) {
+            vertxContext.runOnContext {
+                block.run()
+            }
+        }
     }
 
     fun createNotFoundMessage(entity: String, id: UUID): String {

@@ -15,6 +15,7 @@ import java.util.*
 
 @RequestScoped
 @WithSession
+@Suppress("unused")
 class RoutesApiImpl : RoutesApi, AbstractApi() {
 
     @Inject
@@ -31,7 +32,7 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
         departureBefore: OffsetDateTime?,
         first: Int?,
         max: Int?
-    ): Uni<Response> = withCoroutineScope({
+    ): Uni<Response> = withCoroutineScope {
         val ( routes, len ) = routeController.listRoutes(
             truckId = truckId,
             driverId = driverId,
@@ -41,47 +42,48 @@ class RoutesApiImpl : RoutesApi, AbstractApi() {
             max = max
         )
         createOk(routes.map { routeTranslator.translate(it) }, len)
-    })
+    }
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun createRoute(route: Route): Uni<Response> = withCoroutineScope({
-            val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+    override fun createRoute(route: Route): Uni<Response> = withCoroutineScope {
+        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        val isValidRoute = routeController.isValidRoute(route)
+        if (!isValidRoute) {
+            return@withCoroutineScope createBadRequest(INVALID_ROUTE)
+        }
+        val createdRoute = routeController.createRoute(route, userId)
+        createOk(routeTranslator.translate(createdRoute))
+    }
+
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
+    override fun findRoute(routeId: UUID): Uni<Response> = withCoroutineScope {
+        val route = routeController.findRoute(routeId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(ROUTE, routeId))
+        createOk(routeTranslator.translate(route))
+    }
+
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
+    @WithTransaction
+    override fun updateRoute(routeId: UUID, route: Route): Uni<Response> = withCoroutineScope {
+        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        val existingRoute = routeController.findRoute(routeId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(ROUTE, routeId))
+        if (route.driverId != existingRoute.driverId || route.truckId != existingRoute.truckId) {
             val isValidRoute = routeController.isValidRoute(route)
             if (!isValidRoute) {
                 return@withCoroutineScope createBadRequest(INVALID_ROUTE)
             }
-            val createdRoute = routeController.createRoute(route, userId)
-            createOk(routeTranslator.translate(createdRoute))
-        })
-
-    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun findRoute(routeId: UUID): Uni<Response> = withCoroutineScope({
-            val route = routeController.findRoute(routeId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(ROUTE, routeId))
-            createOk(routeTranslator.translate(route))
-        })
-
-    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    @WithTransaction
-    override fun updateRoute(routeId: UUID, route: Route): Uni<Response> = withCoroutineScope({
-            val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
-            val existingRoute = routeController.findRoute(routeId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(ROUTE, routeId))
-            if (route.driverId != existingRoute.driverId || route.truckId != existingRoute.truckId) {
-                val isValidRoute = routeController.isValidRoute(route)
-                if (!isValidRoute) {
-                    return@withCoroutineScope createBadRequest(INVALID_ROUTE)
-                }
-            }
-            val updatedRoute = routeController.updateRoute(existingRoute, route, userId)
-            createOk(routeTranslator.translate(updatedRoute))
-        })
+        }
+        val updatedRoute = routeController.updateRoute(existingRoute, route, userId)
+        createOk(routeTranslator.translate(updatedRoute))
+    }
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun deleteRoute(routeId: UUID): Uni<Response> = withCoroutineScope({
-            loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
-            val existingRoute = routeController.findRoute(routeId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(ROUTE, routeId))
-            routeController.deleteRoute(existingRoute)
-            createNoContent()
-        })
+    override fun deleteRoute(routeId: UUID): Uni<Response> = withCoroutineScope {
+        loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        val existingRoute = routeController.findRoute(routeId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(ROUTE, routeId))
+        routeController.deleteRoute(existingRoute)
+        createNoContent()
+    }
+
 }
